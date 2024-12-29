@@ -1,4 +1,5 @@
 import subprocess
+import json
 import os
 
 def run_git_command(repo_path, args):
@@ -21,42 +22,55 @@ def run_git_command(repo_path, args):
 
 def get_full_file_diff(repo_path, old_commit, new_commit, test_prefix):
     """
-    Generate a unified diff for .java files between two commits.
+    Generate unified diffs for .java files between two commits, organized by file.
+    Only include the changed file content without metadata.
     :param repo_path: Path to the Git repository.
     :param old_commit: SHA of the old commit (buggy commit).
     :param new_commit: SHA of the new commit (fixed commit).
     :param test_prefix: Prefix path to identify test files.
-    :return: String containing the unified diff.
+    :return: Dictionary containing file contents organized by file name.
     """
-    # Get the diff with complete file content for .java files
+    # Run the git diff command
     args = [
         'diff', '--no-prefix', f'{old_commit}..{new_commit}', '-U99999',
         '--', '*.java'
     ]
     diff_output = run_git_command(repo_path, args)
     
-    # Filter out test files
-    filtered_diff = []
-    in_hunk = False
-    for line in diff_output.splitlines():
-        if line.startswith('--- ') or line.startswith('+++ '):
-            # Check if the file is a test file
-            file_path = line[4:]  # Skip '--- ' or '+++ '
-            if test_prefix in file_path:
-                in_hunk = False
-            else:
-                in_hunk = True
-                filtered_diff.append(line)
-        elif in_hunk:
-            filtered_diff.append(line)
-    
-    return '\n'.join(filtered_diff)
+    # Parse the diff to group by file
+    diffs_by_file = {}
+    current_file = None
+    current_diff = []
 
-def save_diff_to_file(diff_content, output_file):
+    for line in diff_output.splitlines():
+        if line.startswith('--- '):
+            continue  # Skip metadata
+        elif line.startswith('+++ '):
+            # Save the previous file's diff
+            if current_file and current_diff:
+                diffs_by_file[current_file] = "\n".join(current_diff)
+                current_diff = []
+            # Extract the file name
+            file_path = line[4:]  # Skip '+++ '
+            if test_prefix in file_path:
+                current_file = None  # Skip test files
+            else:
+                current_file = os.path.basename(file_path)  # Keep only file name
+        elif current_file:
+            current_diff.append(line)
+    
+    # Save the last file's diff
+    if current_file and current_diff:
+        diffs_by_file[current_file] = "\n".join(current_diff)
+    
+    return diffs_by_file
+
+
+def save_diffs_to_json(diff_dict, output_file):
     """
-    Save the unified diff to a file.
-    :param diff_content: The content of the diff.
-    :param output_file: Path to save the diff.
+    Save diffs organized by file into a JSON file.
+    :param diff_dict: Dictionary containing diffs organized by file name.
+    :param output_file: Path to save the JSON file.
     """
     with open(output_file, 'w', encoding='utf-8') as file:
-        file.write(diff_content)
+        json.dump(diff_dict, file, indent=4)

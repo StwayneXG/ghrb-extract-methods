@@ -1,6 +1,6 @@
 import json
 import os
-from git_utils import get_full_file_diff, save_diff_to_file
+from git_utils import get_full_file_diff, save_diffs_to_json
 
 # Paths
 METADATA_PATH = "data/metadata.json"
@@ -31,18 +31,17 @@ def main():
         
         # Get diff
         try:
-            full_diff = get_full_file_diff(repo_path, buggy_commit, fixed_commit, test_prefix)
+            diffs_by_file = get_full_file_diff(repo_path, buggy_commit, fixed_commit, test_prefix)
 
-            # Save diff to individual file
-            output_dir = 'output/full_diffs'
+            # Save diffs to a JSON file
+            output_dir = 'output/json_diffs'
             os.makedirs(output_dir, exist_ok=True)
-            output_file = os.path.join(output_dir, f"{project_key}_java_diff.txt")
-            save_diff_to_file(full_diff, output_file)
+            output_file = os.path.join(output_dir, f"{project_key}_java_diff.json")
+            save_diffs_to_json(diffs_by_file, output_file)
 
             print(f"Full file content unified .java diff saved for {project_key} at {output_file}")
         except Exception as e:
             print(f"Error processing {project_key}: {e}")
-        break
 
 if __name__ == "__main__":
     main()
