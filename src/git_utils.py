@@ -23,7 +23,7 @@ def run_git_command(repo_path, args):
 def get_full_file_diff(repo_path, old_commit, new_commit, test_prefix):
     """
     Generate unified diffs for .java files between two commits, organized by file.
-    Only include the changed file content without metadata.
+    Exclude unnecessary metadata and only include the changed file content.
     :param repo_path: Path to the Git repository.
     :param old_commit: SHA of the old commit (buggy commit).
     :param new_commit: SHA of the new commit (fixed commit).
@@ -43,12 +43,17 @@ def get_full_file_diff(repo_path, old_commit, new_commit, test_prefix):
     current_diff = []
 
     for line in diff_output.splitlines():
-        if line.startswith('--- '):
-            continue  # Skip metadata
-        elif line.startswith('+++ '):
+        # Skip metadata lines
+        if line.startswith('diff --git') or line.startswith('index') or line.startswith('similarity index') or line.startswith('rename '):
+            continue
+        if line.startswith('@@'):
+            continue  # Skip chunk headers
+        
+        # Handle file header lines (e.g., `+++ b/...`)
+        if line.startswith('+++ '):
             # Save the previous file's diff
             if current_file and current_diff:
-                diffs_by_file[current_file] = "\n".join(current_diff)
+                diffs_by_file[current_file] = "\n".join(current_diff).strip()
                 current_diff = []
             # Extract the file name
             file_path = line[4:]  # Skip '+++ '
@@ -61,7 +66,7 @@ def get_full_file_diff(repo_path, old_commit, new_commit, test_prefix):
     
     # Save the last file's diff
     if current_file and current_diff:
-        diffs_by_file[current_file] = "\n".join(current_diff)
+        diffs_by_file[current_file] = "\n".join(current_diff).strip()
     
     return diffs_by_file
 
