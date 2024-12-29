@@ -1,6 +1,6 @@
 import json
 import os
-from git_utils import get_repo, get_diff_between_commits
+from git_utils import get_repo, get_diff_between_commits, get_diff_metadata, save_changes_to_json
 
 # Paths
 METADATA_PATH = "data/metadata.json"
@@ -33,17 +33,24 @@ def main():
 
         # Fetch commits
         buggy_commit = project_data["buggy_commit"]
-        merge_commit = project_data["merge_commit"]
+        fixed_commit = project_data["merge_commit"]
+        test_prefix = project_data["test_prefix"]
         
         # Get diff
         try:
-            diff = get_diff_between_commits(repo, buggy_commit, merge_commit)
+            # diff = get_diff_between_commits(repo, buggy_commit, merge_commit)
+            changes = get_diff_metadata(repo, buggy_commit, fixed_commit, test_prefix)
+
             output_dir = "output/diffs"
             os.makedirs(output_dir, exist_ok=True)
-            output_file = os.path.join(output_dir, f"{project_key}_java_diff.txt")
+            output_file = os.path.join(output_dir, f"{project_key}_java_diff.json")
             
-            with open(output_file, 'w') as file:
-                file.write('\n'.join(diff))
+
+            # output_file = 'output/diff_metadata.json'
+            save_changes_to_json(changes, output_file)
+
+            # with open(output_file, 'w') as file:
+            #     file.write('\n'.join(diff))
             print(f"Filtered .java diff saved for {project_key} at {output_file}")
         except Exception as e:
             print(f"Error processing {project_key}: {e}")
