@@ -1,6 +1,6 @@
 import json
 import os
-from src.git_utils import get_repo, get_diff_between_commits
+from git_utils import get_repo, get_diff_between_commits
 
 # Paths
 METADATA_PATH = "data/metadata.json"
@@ -25,8 +25,12 @@ def main():
         
         # Get repo details
         repo_path = repo_info['repo_path']
-        repo = get_repo(repo_path)
-        
+        try:
+            repo = get_repo(repo_path)
+        except Exception as e:
+            print(f"Error initializing repo for {project_key}: {e}")
+            continue
+
         # Fetch commits
         buggy_commit = project_data["buggy_commit"]
         merge_commit = project_data["merge_commit"]
