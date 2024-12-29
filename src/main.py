@@ -1,6 +1,6 @@
 import json
 import os
-from git_utils import get_repo, get_full_file_diff, save_full_diff_to_file
+from git_utils import get_full_file_diff, save_diff_to_file
 
 # Paths
 METADATA_PATH = "data/metadata.json"
@@ -25,32 +25,24 @@ def main():
         
         # Get repo details
         repo_path = repo_info['repo_path']
-        try:
-            repo = get_repo(repo_path)
-        except Exception as e:
-            print(f"Error initializing repo for {project_key}: {e}")
-            continue
-
-        # Fetch commits
+        test_prefix = repo_info["test_prefix"]
         buggy_commit = project_data["buggy_commit"]
         fixed_commit = project_data["merge_commit"]
-        test_prefix = repo_info["test_prefix"]
         
         # Get diff
         try:
-            # Get full file diffs
-            full_diffs = get_full_file_diff(repo, buggy_commit, fixed_commit, test_prefix)
+            full_diff = get_full_file_diff(repo_path, buggy_commit, fixed_commit, test_prefix)
 
-            # Save diffs to individual files
+            # Save diff to individual file
             output_dir = 'output/full_diffs'
             os.makedirs(output_dir, exist_ok=True)
-            output_file = os.path.join(output_dir, f"{project_key}_java_diff.json")
-            save_full_diff_to_file(full_diffs, output_file)
+            output_file = os.path.join(output_dir, f"{project_key}_java_diff.txt")
+            save_diff_to_file(full_diff, output_file)
 
-            
-            print(f"Filtered .java diff saved for {project_key} at {output_file}")
+            print(f"Full file content unified .java diff saved for {project_key} at {output_file}")
         except Exception as e:
             print(f"Error processing {project_key}: {e}")
+        break
 
 if __name__ == "__main__":
     main()

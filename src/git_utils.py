@@ -1,55 +1,62 @@
+import subprocess
 import os
-from git import Repo
-import json
 
-def get_repo(repo_path):
-    """Initialize the Git repository."""
-    if not os.path.exists(repo_path):
-        raise FileNotFoundError(f"Repository path {repo_path} does not exist.")
-    return Repo(repo_path)
-
-def get_full_file_diff(repo, old_commit, new_commit, test_prefix):
+def run_git_command(repo_path, args):
     """
-    Fetch the full file content in the diff between two commits.
-    Excludes test files and non-.java files.
-    :param repo: GitPython repo object.
+    Run a git command using subprocess.
+    :param repo_path: Path to the Git repository.
+    :param args: List of git command arguments.
+    :return: Output of the git command.
+    """
+    result = subprocess.run(
+        ['git'] + args,
+        cwd=repo_path,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+    if result.returncode != 0:
+        raise Exception(f"Git command failed: {result.stderr}")
+    return result.stdout
+
+def get_full_file_diff(repo_path, old_commit, new_commit, test_prefix):
+    """
+    Generate a unified diff for .java files between two commits.
+    :param repo_path: Path to the Git repository.
     :param old_commit: SHA of the old commit (buggy commit).
     :param new_commit: SHA of the new commit (fixed commit).
     :param test_prefix: Prefix path to identify test files.
-    :return: Dictionary containing file names and their full diffs.
+    :return: String containing the unified diff.
     """
-    old = repo.commit(old_commit)
-    new = repo.commit(new_commit)
-    diff = new.diff(old, create_patch=True, context_lines=99999)  # Large context
+    # Get the diff with complete file content for .java files
+    args = [
+        'diff', '--no-prefix', f'{old_commit}..{new_commit}', '-U99999',
+        '--', '*.java'
+    ]
+    diff_output = run_git_command(repo_path, args)
+    
+    # Filter out test files
+    filtered_diff = []
+    in_hunk = False
+    for line in diff_output.splitlines():
+        if line.startswith('--- ') or line.startswith('+++ '):
+            # Check if the file is a test file
+            file_path = line[4:]  # Skip '--- ' or '+++ '
+            if test_prefix in file_path:
+                in_hunk = False
+            else:
+                in_hunk = True
+                filtered_diff.append(line)
+        elif in_hunk:
+            filtered_diff.append(line)
+    
+    return '\n'.join(filtered_diff)
 
-    full_diffs = {}
-    for change in diff:
-        # Filter out non-.java files and test files
-        file_path = change.a_path or change.b_path
-        if not file_path.endswith('.java'):
-            continue
-        if is_test_file(file_path, test_prefix):
-            continue
-
-        # Decode the diff and store it
-        full_diffs[file_path] = change.diff.decode('utf-8')
-
-    return full_diffs
-
-def save_full_diff_to_file(full_diffs, output_file):
+def save_diff_to_file(diff_content, output_file):
     """
-    Save the full diffs for each file to individual text files.
-    :param full_diffs: Dictionary with file names as keys and diffs as values.
-    :param output_dir: Directory to save the output files.
+    Save the unified diff to a file.
+    :param diff_content: The content of the diff.
+    :param output_file: Path to save the diff.
     """
-
     with open(output_file, 'w', encoding='utf-8') as file:
-        for file_name, diff_content in full_diffs.items():
-            file.write(f"__FILE__: {file_name}\n\n")
-            file.write(diff_content)
-            file.write("\n\n")
-
-
-def is_test_file(file_path, test_prefix):
-    """Check if a file path corresponds to a test file."""
-    return file_path.startswith(test_prefix)
+        file.write(diff_content)
