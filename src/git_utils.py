@@ -18,4 +18,9 @@ def get_diff_between_commits(repo, old_commit, new_commit):
     old = repo.commit(old_commit)
     new = repo.commit(new_commit)
     diff = new.diff(old, create_patch=True)
-    return diff
+
+    java_diffs = []
+    for change in diff:
+        if change.a_path.endswith('.java') or change.b_path.endswith('.java'):
+            java_diffs.append(change.diff)
+    return java_diffs

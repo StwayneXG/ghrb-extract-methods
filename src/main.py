@@ -40,11 +40,11 @@ def main():
             diff = get_diff_between_commits(repo, buggy_commit, merge_commit)
             output_dir = "output/diffs"
             os.makedirs(output_dir, exist_ok=True)
-            output_file = os.path.join(output_dir, f"{project_key}_diff.txt")
+            output_file = os.path.join(output_dir, f"{project_key}_java_diff.txt")
             
             with open(output_file, 'w') as file:
-                file.write('\n'.join(str(patch) for patch in diff))
-            print(f"Diff saved for {project_key} at {output_file}")
+                file.write('\n'.join(diff))
+            print(f"Filtered .java diff saved for {project_key} at {output_file}")
         except Exception as e:
             print(f"Error processing {project_key}: {e}")
 
