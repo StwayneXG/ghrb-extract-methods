@@ -5,7 +5,7 @@ import os
 import json
 
 # Paths
-DIFF_PATH = "output/full_diffs/"
+DIFF_PATH = "output/json_diffs/"
 
 def is_function_line(line):
     trimmed_line = line.strip()
