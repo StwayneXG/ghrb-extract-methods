@@ -165,7 +165,12 @@ def main():
             for file_name, diff_content in diff_data.items():
                 modified_content = process_diff_content(diff_content)
                 methods = extract_methods(diff_content)
-                method_implementations = extract_method_implementations(methods, modified_content)
+                try:
+                    method_implementations = extract_method_implementations(methods, modified_content)
+                except Exception as e:
+                    print(f"Error extracting method implementations for {file_name}: {e}")
+                    print('File content:', modified_content)
+                    return
 
                 # Save method implementations to a CSV
                 df = pd.DataFrame(method_implementations.items(), columns=["Method Name", "Method Implementation"])
