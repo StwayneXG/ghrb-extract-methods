@@ -28,14 +28,14 @@ def extract_method_name(line):
     # Case 1: Check if it's a class declaration
     if "class" in trimmed_line:
         # Extract class name, which follows the 'class' keyword
-        class_match = re.search(r'class\s+(\w+)', trimmed_line)
+        class_match = re.search(r'class\s+(\w+)\s+', trimmed_line)
         if class_match:
             return class_match.group(1)
         return None
     
     # Case 2: General method or constructor extraction
     # This pattern captures method/constructor name before the '('
-    method_match = re.search(r'(\w+)\s*\(', trimmed_line)
+    method_match = re.search(r'\s+(\w+)\s*\(', trimmed_line)
     if method_match:
         return method_match.group(1)
 
