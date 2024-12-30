@@ -157,6 +157,7 @@ def process_diff_content(diff_content):
     return modified_content
 
 def main():
+    os.makedirs("method_implemenations", exist_ok=True)
     for file_name in os.listdir(DIFF_PATH):
         if file_name.endswith(".json"):
             file_path = os.path.join(DIFF_PATH, file_name)
