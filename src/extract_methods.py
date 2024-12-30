@@ -163,6 +163,7 @@ def main():
             file_path = os.path.join(DIFF_PATH, proj_bug_filename)
             diff_data = load_json(file_path)
 
+            df = pd.DataFrame(columns=["Method Name", "Method Implementation"])
             for file_name, diff_content in diff_data.items():
                 modified_content = process_diff_content(diff_content)
                 methods = extract_methods(diff_content)
@@ -175,14 +176,16 @@ def main():
                     return
 
                 # Save method implementations to a CSV
-                df = pd.DataFrame(method_implementations.items(), columns=["Method Name", "Method Implementation"])
-                output_file = f"method_implemenations/{proj_bug_filename}_diff_method_implementations.csv"
-                if df.empty:
-                    print(f"No method implementations found for {file_name}")
-                    print(diff_content)
-                    return
-                df.to_csv(output_file, index=False)
-                print(f"Method implementations saved to {output_file}")
+                # df = pd.DataFrame(method_implementations.items(), columns=["Method Name", "Method Implementation"])
+                for method_name, method_implementation in method_implementations.items():
+                    df = df.append({"Method Name": method_name, "Method Implementation": method_implementation}, ignore_index=True)
+            output_file = f"method_implemenations/{proj_bug_filename}_diff_method_implementations.csv"
+            if df.empty:
+                print(f"No method implementations found for {file_name}")
+                print(diff_content)
+                return
+            df.to_csv(output_file, index=False)
+            print(f"Method implementations saved to {output_file}")
 
 
 if __name__ == "__main__":
