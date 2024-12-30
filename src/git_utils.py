@@ -50,7 +50,7 @@ def get_full_file_diff(repo_path, old_commit, new_commit, test_prefix):
             continue  # Skip chunk headers
         
         # Handle file header lines (e.g., `+++ b/...`)
-        if line.startswith('+++ '):
+        if line.startswith('+++ ') or line.startswith('--- '):
             # Save the previous file's diff
             if current_file and current_diff:
                 diffs_by_file[current_file] = "\n".join(current_diff).strip()
@@ -60,7 +60,7 @@ def get_full_file_diff(repo_path, old_commit, new_commit, test_prefix):
             if test_prefix in file_path:
                 current_file = None  # Skip test files
             else:
-                current_file = os.path.basename(file_path)  # Keep only file name
+                current_file = os.path.basename(file_path)  # Keep only file name                
         elif current_file:
             current_diff.append(line)
     
