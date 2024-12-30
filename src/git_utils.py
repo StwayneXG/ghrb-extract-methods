@@ -44,7 +44,7 @@ def get_full_file_diff(repo_path, old_commit, new_commit, test_prefix):
 
     for line in diff_output.splitlines():
         # Skip metadata lines
-        if line.startswith('diff --git') or line.startswith('index') or line.startswith('similarity index') or line.startswith('rename ') or line.startswith('new file') or line.startswith('deleted file') or line.startswith('\ No newline'):
+        if line.startswith('diff --git') or line.startswith('index') or line.startswith('similarity index') or line.startswith('rename ') or line.startswith('new file') or line.startswith('deleted file') or line.startswith(r'\ No newline'):
             continue
         if line.startswith('@@'):
             continue  # Skip chunk headers
