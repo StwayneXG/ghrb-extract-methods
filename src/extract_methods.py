@@ -158,9 +158,9 @@ def process_diff_content(diff_content):
 
 def main():
     os.makedirs("method_implemenations", exist_ok=True)
-    for file_name in os.listdir(DIFF_PATH):
-        if file_name.endswith(".json"):
-            file_path = os.path.join(DIFF_PATH, file_name)
+    for proj_bug_filename in os.listdir(DIFF_PATH):
+        if proj_bug_filename.endswith(".json"):
+            file_path = os.path.join(DIFF_PATH, proj_bug_filename)
             diff_data = load_json(file_path)
 
             for file_name, diff_content in diff_data.items():
@@ -176,7 +176,7 @@ def main():
 
                 # Save method implementations to a CSV
                 df = pd.DataFrame(method_implementations.items(), columns=["Method Name", "Method Implementation"])
-                output_file = f"method_implemenations/{file_name}_diff_method_implementations.csv"
+                output_file = f"method_implemenations/{proj_bug_filename}_diff_method_implementations.csv"
                 if df.empty:
                     print(f"No method implementations found for {file_name}")
                     print(diff_content)
