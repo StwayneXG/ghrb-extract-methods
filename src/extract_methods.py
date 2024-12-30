@@ -177,6 +177,10 @@ def main():
                 # Save method implementations to a CSV
                 df = pd.DataFrame(method_implementations.items(), columns=["Method Name", "Method Implementation"])
                 output_file = f"method_implemenations/{file_name}_diff_method_implementations.csv"
+                if df.empty:
+                    print(f"No method implementations found for {file_name}")
+                    print(diff_content)
+                    return
                 df.to_csv(output_file, index=False)
                 print(f"Method implementations saved to {output_file}")
 
