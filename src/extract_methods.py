@@ -171,6 +171,7 @@ def main():
                 except Exception as e:
                     print(f"Error extracting method implementations for {file_name}: {e}")
                     print('File content:', modified_content)
+                    print("#" * 50)
                     return
 
                 # Save method implementations to a CSV
