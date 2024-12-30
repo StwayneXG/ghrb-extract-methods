@@ -180,10 +180,10 @@ def main():
                 for method_name, method_implementation in method_implementations.items():
                     df = df.append({"Method Name": method_name, "Method Implementation": method_implementation}, ignore_index=True)
             output_file = f"method_implemenations/{proj_bug_filename}_diff_method_implementations.csv"
-            if df.empty:
-                print(f"No method implementations found for {file_name}")
-                print(diff_content)
-                return
+            # if df.empty:
+            #     print(f"No method implementations found for {proj_bug_filename}")
+            #     print(diff_content)
+            #     return
             df.to_csv(output_file, index=False)
             print(f"Method implementations saved to {output_file}")
 
