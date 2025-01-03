@@ -54,7 +54,7 @@ def main():
         for test in success_tests:
             assert test in valid_tests, f"{project_key}: {test} is not a valid test"
 
-            test_file = test_prefix + test.replace('.', '/') + '.java'
+            test_file = repo_path + test_prefix + test.replace('.', '/') + '.java'
             testcase_name = test.split('.')[-1]
 
             tree = get_testfile_tree(test_file)
