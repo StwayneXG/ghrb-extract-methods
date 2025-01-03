@@ -98,7 +98,7 @@ def verify_in_fixed_version(fixed_commit, target_test_classes, repo_path, test_p
 
     fix_build_env(repo_path)
 
-    valid_tests = {}
+    valid_tests = []
     for test_id in target_test_classes.keys():
         test_process = sp.run(['mvn', 'clean', 'test', '-Denforcer.skip=true',
                               f'-Dtest={test_id}', '-DfailIfNoTests=false'], capture_output=True, cwd=repo_path)
@@ -139,7 +139,7 @@ def main():
 
     with open('data/test_data.json', 'w') as f:
         json.dump(test_data, f, indent=4)
-        
+
 
 if __name__ == "__main__":
     main()
