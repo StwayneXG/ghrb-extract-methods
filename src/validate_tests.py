@@ -64,7 +64,7 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
     changed_test_id = list(map(lambda x: x.split(
         test_prefix)[-1].split('.')[0].replace('/', '.'), changed_test_files))
 
-    valid_tests = []
+    valid_tests = {}
     for test_id in changed_test_id:
         print(f"Running test: {test_id}")
         test_process = sp.run(['mvn', 'clean', 'test', '-Denforcer.skip=true',
@@ -79,11 +79,11 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
                 tests.append(line.split(' ')[1])
         
         if 'There are test failures' in captured_stdout:
-            valid_tests.append(test_id)
+            valid_tests[test_id] = tests
 
-        print(f"Tests in {test_id}:")
-        for test in tests:
-            print(test)
+        # print(f"Tests in {test_id}:")
+        # for test in tests:
+        #     print(test)
 
     return valid_tests
 
@@ -98,8 +98,8 @@ def verify_in_fixed_version(fixed_commit, target_test_classes, repo_path, test_p
 
     fix_build_env(repo_path)
 
-    valid_tests = []
-    for test_id in target_test_classes:
+    valid_tests = {}
+    for test_id in target_test_classes.keys():
         test_process = sp.run(['mvn', 'clean', 'test', '-Denforcer.skip=true',
                               f'-Dtest={test_id}', '-DfailIfNoTests=false'], capture_output=True, cwd=repo_path)
         captured_stdout = test_process.stdout.decode()
@@ -123,16 +123,23 @@ def verify_bug(bug_id, buggy_commit, fixed_commit):
     valid_tests = verify_in_buggy_version(
         buggy_commit, test_patch_dir, repo_path, test_prefix)
 
-    # success_tests = verify_in_fixed_version(
-    #     fixed_commit, valid_tests, repo_path, test_prefix)
+    success_tests = verify_in_fixed_version(
+        fixed_commit, valid_tests, repo_path, test_prefix)
 
-    # return valid_tests, success_tests
+    return valid_tests, success_tests
 
 def main():
+    test_data = {}
     for bug_id, bug_data in metadata.items():
         print(f"Verifying {bug_id}...")
-        verify_bug(bug_id, bug_data['buggy_commit'], bug_data['merge_commit'])
-        break
+        valid_tests, success_tests = verify_bug(bug_id, bug_data['buggy_commit'], bug_data['merge_commit'])
+        
+        tests = {k: v for k, v in valid_tests.items() if k in success_tests}
+        test_data[bug_id] = tests
+
+    with open('data/test_data.json', 'w') as f:
+        json.dump(test_data, f, indent=4)
+        
 
 if __name__ == "__main__":
     main()
