@@ -25,6 +25,9 @@ def main():
     for project_key, project_data in metadata.items():
         project = project_key.rsplit("-", 1)[0]
         
+        if 'gson' in project:
+            continue
+
         repo_info = config.get(project)
         repo_path = repo_info["repo_path"]
 
