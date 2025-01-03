@@ -14,6 +14,15 @@ def git_checkout(repo_path, commit_hash, version='buggy'):
     assert commit_hash in out.stdout.decode(
     ), f"checkout for {version} commit {commit_hash} was not successful: current commit is {out.stdout.decode()}"
 
+def git_reset(repo_dir_path):
+    sp.run(['git', 'reset', '--hard', 'HEAD'],
+           cwd=repo_dir_path, stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+
+
+def git_clean(repo_dir_path):
+    sp.run(['git', 'clean', '-df'],
+           cwd=repo_dir_path, stdout=sp.DEVNULL, stderr=sp.DEVNULL)
+
 def get_testfile_tree(test_file):
     with open(test_file, 'r') as file:
         tree = javalang.parse.parse(file.read())
@@ -34,7 +43,10 @@ def main():
 
         test_prefix = repo_info["test_prefix"]
 
-        git_checkout(repo_path, project_data["buggy_commit"]["oid"], 'buggy')
+        git_reset(repo_path)
+        git_clean(repo_path)
+
+        git_checkout(repo_path, project_data["buggy_commit"], 'buggy')
 
         valid_tests = project_data["execution_result"]["valid_tests"]
         success_tests = project_data["execution_result"]["success_tests"]
