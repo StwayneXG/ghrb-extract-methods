@@ -49,5 +49,7 @@ def main():
             test_method = get_test_methods(tree, testcase_name)
 
             print(f"{project_key}: {test} exists on line {test_method.position[0]}")
-            
+
+if __name__ == "__main__":
+    main()
 
