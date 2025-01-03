@@ -47,8 +47,6 @@ def main():
             
             captured_stdout = test_process.stdout.decode()
             if 'There are test failures' in captured_stdout:
-                print(f"{project_key}: {test} is not a valid test")
-            else:
                 print(f"{project_key}: {test} is a valid test")
 
 if __name__ == "__main__":
