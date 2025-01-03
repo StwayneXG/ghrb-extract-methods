@@ -66,12 +66,19 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
 
     valid_tests = []
     for test_id in changed_test_id:
+        print(f"Running test: {test_id}")
         test_process = sp.run(['mvn', 'clean', 'test', '-Denforcer.skip=true',
                               f'-Dtest={test_id}', '-DfailIfNoTests=false'], capture_output=True, cwd=repo_path)
 
         captured_stdout = test_process.stdout.decode()
 
         print(captured_stdout)
+
+        print()
+        print()
+        print()
+        print()
+        
 
         if 'There are test failures' in captured_stdout:
             valid_tests.append(test_id)
@@ -121,6 +128,7 @@ def verify_bug(bug_id, buggy_commit, fixed_commit):
 
 def main():
     for bug_id, bug_data in metadata.items():
+        print(f"Verifying {bug_id}...")
         verify_bug(bug_id, bug_data['buggy_commit'], bug_data['merge_commit'])
         break
 
