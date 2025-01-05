@@ -73,7 +73,7 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
         captured_stdout = test_process.stdout.decode()
         test_output = captured_stdout.split('T E S T S')[-1].strip()
 
-        # print(test_output)
+        print(test_output)
         
         tests = []
         for line in test_output.split('\n'):
@@ -142,16 +142,16 @@ def verify_bug(bug_id, buggy_commit, fixed_commit):
 def main():
     test_data = {}
     for bug_id, bug_data in metadata.items():
-        # if not bug_id in ['FasterXML_jackson-databind-3195', 'FasterXML_jackson-databind-3418']:
-        #     continue
+        if not bug_id in ['google_gson-2060']:
+            continue
         print(f"Verifying {bug_id}...")
         valid_tests, success_tests = verify_bug(bug_id, bug_data['buggy_commit'], bug_data['merge_commit'])
         
         tests = {k: v for k, v in valid_tests.items() if k in success_tests}
         test_data[bug_id] = tests
 
-    with open('data/test_data.json', 'w') as f:
-        json.dump(test_data, f, indent=4)
+    # with open('data/test_data.json', 'w') as f:
+    #     json.dump(test_data, f, indent=4)
 
 
 if __name__ == "__main__":
