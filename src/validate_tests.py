@@ -73,9 +73,10 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
         captured_stdout = test_process.stdout.decode()
         test_output = captured_stdout.split('T E S T S')[-1].strip()
 
+        print(test_output)
+        
         tests = []
         for line in test_output.split('\n'):
-
             if 'ERROR' in line and 'Time elapsed' in line and line.endswith('!'):
                 tests.append(line.split(' ')[1])
         
@@ -141,14 +142,14 @@ def verify_bug(bug_id, buggy_commit, fixed_commit):
 def main():
     test_data = {}
     for bug_id, bug_data in metadata.items():
-        if not bug_id in ['Hakky54_sslcontext-kickstart-167', 'Hakky54_sslcontext-kickstart-197', 'FasterXML_jackson-databind-3195', 'FasterXML_jackson-databind-3418']:
+        if not bug_id in ['FasterXML_jackson-databind-3195', 'FasterXML_jackson-databind-3418']:
             continue
         print(f"Verifying {bug_id}...")
         valid_tests, success_tests = verify_bug(bug_id, bug_data['buggy_commit'], bug_data['merge_commit'])
         
         tests = {k: v for k, v in valid_tests.items() if k in success_tests}
         test_data[bug_id] = tests
-        
+        break
 
     with open('data/test_data.json', 'w') as f:
         json.dump(test_data, f, indent=4)
