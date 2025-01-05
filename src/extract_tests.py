@@ -129,7 +129,9 @@ def main():
             tree = get_testfile_tree(test_file)
 
             for test in tests:
-                if '.' in test:
+                if '(' in test:
+                    test = test.split('(')[0]
+                elif '.' in test:
                     test = test.split('.')[-1]
                 test_method = get_test_methods(tree, test)
                 test_method_body = _find_method_body(test_method.position, open(test_file).read())
