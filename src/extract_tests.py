@@ -133,14 +133,17 @@ def main():
                     test = test.split('.')[-1]
                 test_method = get_test_methods(tree, test)
                 test_method_body = _find_method_body(test_method.position, open(test_file).read())
-
-                df = pd.concat(df, pd.DataFrame([{
+                # Create a new DataFrame for the new row
+                new_row_df = pd.DataFrame([{
                     "Project": project,
                     "Bug Number": project_key,
                     "Package Name": test_class,
                     "Testcase Name": test,
                     "Method Implementation": test_method_body
-                }]), ignore_index=True)
+                }])
+
+                # Concatenate the new row with the existing DataFrame
+                df = pd.concat([df, new_row_df], ignore_index=True)
 
         df.to_csv(f"ground_truth_testcases/{project_key}.csv", index=False)
 
