@@ -1,6 +1,6 @@
 {
     "google_gson": {
-        "repo_path": "/root/data/GHRB/repos/gson/",
+        "repo_path": "/root/data/GHRB/repos/gson/gson/",
         "src_dir": "src/main/java/",
         "test_prefix": "src/test/java/",
         "project_name": "google_gson",
@@ -35,7 +35,7 @@
         "project_id": "jsoup"
     },
     "Hakky54_sslcontext-kickstart": {
-        "repo_path": "/root/data/GHRB/repos/sslcontext-kickstart/",
+        "repo_path": "/root/data/GHRB/repos/sslcontext-kickstart/sslcontext-kickstart/",
         "src_dir": "src/main/java/",
         "test_prefix": "src/test/java/",
         "project_name": "Hakky54_sslcontext-kickstart",
