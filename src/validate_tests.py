@@ -125,12 +125,23 @@ def verify_bug(bug_id, buggy_commit, fixed_commit):
 
     success_tests = verify_in_fixed_version(
         fixed_commit, valid_tests, repo_path, test_prefix)
-
+    
+    print(f"Valid tests for {bug_id}: {len(valid_tests)}")
+    print(valid_tests)
+    print(f"Success tests for {bug_id}: {len(success_tests)}")
+    print(success_tests)
     return valid_tests, success_tests
+
+# No valid tests for Hakky54_sslcontext-kickstart-167
+# No valid tests for Hakky54_sslcontext-kickstart-197
+# No valid tests for FasterXML_jackson-databind-3195
+# No valid tests for FasterXML_jackson-databind-3418
 
 def main():
     test_data = {}
     for bug_id, bug_data in metadata.items():
+        if not bug_id in ['Hakky54_sslcontext-kickstart-167', 'Hakky54_sslcontext-kickstart-197', 'FasterXML_jackson-databind-3195', 'FasterXML_jackson-databind-3418']:
+            continue
         print(f"Verifying {bug_id}...")
         valid_tests, success_tests = verify_bug(bug_id, bug_data['buggy_commit'], bug_data['merge_commit'])
         
