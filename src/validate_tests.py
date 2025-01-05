@@ -14,7 +14,7 @@ properties_to_replace = {
         r'<maven.compiler.target>\s*1.6\s*</maven.compiler.target>': '<maven.compiler.target>11</maven.compiler.target>',
     },
     'jackson-databind': {
-        r'<version>\s*2.13.0-rc1-SNAPSHOT\s*</version>': '<version>2.14.0-SNAPSHOT</version>',
+        r'<version>\s*2.13.0-rc1-SNAPSHOT\s*</version>': '<version>2.15.0-SNAPSHOT</version>',
         r'<source>\s*14\s*</source>': '<source>17</source>',
         r'<release>\s*14\s*</release>': '<release>17</release>',
         r'<id>\s*java17\+\s*</id>': '<id>java17+</id>',
