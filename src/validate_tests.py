@@ -74,7 +74,7 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
         captured_stdout = test_process.stdout.decode()
         test_output = captured_stdout.split('T E S T S')[-1].strip()
 
-        print(test_output)
+        # print(test_output)
         
         tests = []
         for line in test_output.split('\n'):
@@ -141,7 +141,7 @@ def verify_bug(bug_id, buggy_commit, fixed_commit):
 # No valid tests for FasterXML_jackson-databind-3418
 
 def main():
-    test_data = {}
+    test_data = json.load(open("data/test_data.json"))
     for bug_id, bug_data in metadata.items():
         if not bug_id in ['FasterXML_jackson-databind-3418']:
             continue
@@ -151,8 +151,8 @@ def main():
         tests = {k: v for k, v in valid_tests.items() if k in success_tests}
         test_data[bug_id] = tests
 
-    # with open('data/test_data.json', 'w') as f:
-    #     json.dump(test_data, f, indent=4)
+    with open('data/test_data.json', 'w') as f:
+        json.dump(test_data, f, indent=4)
 
 
 if __name__ == "__main__":
