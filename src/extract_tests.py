@@ -57,7 +57,12 @@ def main():
             tree = get_testfile_tree(test_file)
 
             for test in tests:
-                test_method = get_test_methods(tree, test)
+                try:
+                    test_method = get_test_methods(tree, test)
+                except Exception as e:
+                    print(f"Exception: {e}")
+                    print(f"{project_key}: {test} not found in {test_file}")
+                    continue
                 print(f"{project_key}: {test} exists on line {test_method.position[0]}")
 
 if __name__ == "__main__":
