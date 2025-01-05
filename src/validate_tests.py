@@ -73,14 +73,10 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
         captured_stdout = test_process.stdout.decode()
         test_output = captured_stdout.split('T E S T S')[-1].strip()
 
-        print(test_output)
-
         tests = []
         for line in test_output.split('\n'):
-            if 'nl.altindag.ssl.util.CertificateUtilsShould.generateAliasForX509Certificate' in line:
-                # Print raw version of line
-                print(repr(line))
-            if '[\x1b[1;31mERROR\x1b[m]' in line and 'Time elapsed' in line and line.endswith('!'):
+
+            if 'ERROR' in line and 'Time elapsed' in line and line.endswith('!'):
                 tests.append(line.split(' ')[1])
         
         if 'There are test failures' in captured_stdout:
@@ -152,10 +148,10 @@ def main():
         
         tests = {k: v for k, v in valid_tests.items() if k in success_tests}
         test_data[bug_id] = tests
-        break
+        
 
-    # with open('data/test_data.json', 'w') as f:
-    #     json.dump(test_data, f, indent=4)
+    with open('data/test_data.json', 'w') as f:
+        json.dump(test_data, f, indent=4)
 
 
 if __name__ == "__main__":
