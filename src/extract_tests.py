@@ -4,6 +4,7 @@ import javalang
 
 metadata = json.load(open("data/metadata.json"))
 config = json.load(open("data/config.json"))
+test_data = json.load(open("data/test_data.json"))
 
 def git_checkout(repo_path, commit_hash, version='buggy'):
     cp = sp.run(['git', 'checkout', commit_hash],
@@ -34,6 +35,7 @@ def get_test_methods(tree, test_method_name):
             return node
     raise Exception(f"Test method {test_method_name} not found in the test file")
 
+
 def main():
     for project_key, project_data in metadata.items():
         project = project_key.rsplit("-", 1)[0]
@@ -46,21 +48,17 @@ def main():
         git_reset(repo_path)
         git_clean(repo_path)
 
-        git_checkout(repo_path, project_data["buggy_commit"], 'buggy')
+        git_checkout(repo_path, project_data["merge_commit"], 'buggy')
 
-        valid_tests = project_data["execution_result"]["valid_tests"]
-        success_tests = project_data["execution_result"]["success_tests"]
+        valid_tests = test_data[project_key]
 
-        for test in success_tests:
-            assert test in valid_tests, f"{project_key}: {test} is not a valid test"
-
-            test_file = repo_path + test_prefix + test.replace('.', '/') + '.java'
-            testcase_name = test.split('.')[-1]
-
+        for test_class, tests in valid_tests.items():
+            test_file = repo_path + test_prefix + test_class.replace('.', '/') + '.java'
             tree = get_testfile_tree(test_file)
-            test_method = get_test_methods(tree, testcase_name)
 
-            print(f"{project_key}: {test} exists on line {test_method.position[0]}")
+            for test in tests:
+                test_method = get_test_methods(tree, test)
+                print(f"{project_key}: {test} exists on line {test_method.position[0]}")
 
 if __name__ == "__main__":
     main()
