@@ -136,7 +136,7 @@ def main():
                 # Create a new DataFrame for the new row
                 new_row_df = pd.DataFrame([{
                     "Project": project,
-                    "Bug Number": project_key,
+                    "Bug Number": project_key.rsplit("-", 1)[1],
                     "Package Name": test_class,
                     "Testcase Name": test,
                     "Method Implementation": test_method_body
