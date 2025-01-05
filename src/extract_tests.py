@@ -57,6 +57,12 @@ def main():
 
         valid_tests = test_data[project_key]
 
+        if len(valid_tests) == 0:
+            print("\n\n\n")
+            print(f"No valid tests for {project_key}")
+            print("\n\n\n")
+            continue
+
         for test_class, tests in valid_tests.items():
             test_file = repo_path + test_prefix + test_class.replace('.', '/') + '.java'
             tree = get_testfile_tree(test_file)
