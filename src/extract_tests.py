@@ -62,6 +62,8 @@ def main():
             tree = get_testfile_tree(test_file)
 
             for test in tests:
+                if '.' in test:
+                    test = test.split('.')[-1]
                 try:
                     test_method = get_test_methods(tree, test)
                 except Exception as e:
