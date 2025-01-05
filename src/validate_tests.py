@@ -71,14 +71,13 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
                               f'-Dtest={test_id}', '-DfailIfNoTests=false'], capture_output=True, cwd=repo_path)
 
         captured_stdout = test_process.stdout.decode()
-        test_output = captured_stdout.split('[INFO]  T E S T S')[-1]
+        test_output = captured_stdout.split('T E S T S')[-1].strip()
 
         print(test_output)
 
         tests = []
         for line in test_output.split('\n'):
-            if 'T E S T S' in line:
-                print(line)
+            if 'nl.altindag.ssl.util.CertificateUtilsShould.generateAliasForX509Certificate' in line:
                 # Print raw version of line
                 print(repr(line))
             if '[ERROR]' in line and 'Time elapsed' in line and line.endswith('!'):
