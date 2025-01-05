@@ -77,6 +77,10 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
 
         tests = []
         for line in test_output.split('\n'):
+            if 'T E S T S' in line:
+                print(line)
+                # Print raw version of line
+                print(repr(line))
             if '[ERROR]' in line and 'Time elapsed' in line and line.endswith('!'):
                 tests.append(line.split(' ')[1])
         
