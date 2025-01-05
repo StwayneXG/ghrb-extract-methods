@@ -149,7 +149,6 @@ def main():
         
         tests = {k: v for k, v in valid_tests.items() if k in success_tests}
         test_data[bug_id] = tests
-        break
 
     with open('data/test_data.json', 'w') as f:
         json.dump(test_data, f, indent=4)
