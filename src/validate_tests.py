@@ -142,7 +142,7 @@ def verify_bug(bug_id, buggy_commit, fixed_commit):
 def main():
     test_data = {}
     for bug_id, bug_data in metadata.items():
-        if not bug_id in ['google_gson-2060']:
+        if not bug_id in ['FasterXML_jackson-databind-3418']:
             continue
         print(f"Verifying {bug_id}...")
         valid_tests, success_tests = verify_bug(bug_id, bug_data['buggy_commit'], bug_data['merge_commit'])
