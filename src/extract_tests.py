@@ -33,6 +33,11 @@ def get_test_methods(tree, test_method_name):
     for path, node in tree.filter(javalang.tree.MethodDeclaration):
         if node.name == test_method_name:
             return node
+    
+    print(f"Test Method Name: {test_method_name}")
+    print("Methods in the test file:")
+    for path, node in tree.filter(javalang.tree.MethodDeclaration):
+        print(node.name)
     raise Exception(f"Test method {test_method_name} not found in the test file")
 
 
