@@ -1,6 +1,8 @@
 import json
 import subprocess as sp
 import javalang
+import pandas as pd
+import os
 
 metadata = json.load(open("data/metadata.json"))
 config = json.load(open("data/config.json"))
@@ -29,19 +31,77 @@ def get_testfile_tree(test_file):
         tree = javalang.parse.parse(file.read())
     return tree
 
+
+def _find_method_body(start_position, content: str) -> str:
+    lines = content.split('\n')
+    current_line = start_position[0] - 1
+    current_column = start_position[1] - 1
+    brace_count = 0
+    in_string = False
+    in_char = False
+    in_block_comment = False
+    escape_next = False
+    method_lines = []
+
+    while current_line < len(lines):
+        line = lines[current_line]
+        i = current_column if current_line == start_position[0] - 1 else 0
+        in_line_comment = False
+
+        while i < len(line):
+            char = line[i]
+
+            if escape_next:
+                escape_next = False
+            elif char == '\\':
+                escape_next = True
+            elif in_string:
+                if char == '"':
+                    in_string = False
+            elif in_char:
+                if char == "'":
+                    in_char = False
+            elif in_line_comment:
+                pass
+            elif in_block_comment:
+                if char == '*' and i + 1 < len(line) and line[i + 1] == '/':
+                    in_block_comment = False
+                    i += 1
+            else:
+                if char == '"':
+                    in_string = True
+                elif char == "'":
+                    in_char = True
+                elif char == '/' and i + 1 < len(line):
+                    if line[i + 1] == '/':
+                        in_line_comment = True
+                        i += 1
+                    elif line[i + 1] == '*':
+                        in_block_comment = True
+                        i += 1
+                elif char == '{':
+                    brace_count += 1
+                elif char == '}':
+                    brace_count -= 1
+                    if brace_count == 0:
+                        method_lines.append(line[:i + 1])
+                        return '\n'.join(method_lines)
+
+            i += 1
+
+        method_lines.append(line)
+        current_line += 1
+        current_column = 0
+
+    return '\n'.join(method_lines)
+
 def get_test_methods(tree, test_method_name):
     for path, node in tree.filter(javalang.tree.MethodDeclaration):
         if node.name == test_method_name:
             return node
-    
-    print(f"Test Method Name: {test_method_name}")
-    print("Methods in the test file:")
-    for path, node in tree.filter(javalang.tree.MethodDeclaration):
-        print(node.name)
-    raise Exception(f"Test method {test_method_name} not found in the test file")
-
 
 def main():
+    os.makedirs("ground_truth_testcases", exist_ok=True)
     for project_key, project_data in metadata.items():
         project = project_key.rsplit("-", 1)[0]
         
@@ -62,7 +122,8 @@ def main():
             print(f"No valid tests for {project_key}")
             print("\n\n\n")
             continue
-
+        
+        df = pd.DataFrame(columns=["Project", "Bug Number", "Package Name", "Testcase Name", "Method Implementation"])
         for test_class, tests in valid_tests.items():
             test_file = repo_path + test_prefix + test_class.replace('.', '/') + '.java'
             tree = get_testfile_tree(test_file)
@@ -70,13 +131,18 @@ def main():
             for test in tests:
                 if '.' in test:
                     test = test.split('.')[-1]
-                try:
-                    test_method = get_test_methods(tree, test)
-                except Exception as e:
-                    print(f"Exception: {e}")
-                    print(f"{project_key}: {test} not found in {test_file}")
-                    continue
-                print(f"{project_key}: {test} exists on line {test_method.position[0]}")
+                test_method = get_test_methods(tree, test)
+                test_method_body = _find_method_body(test_method.position, open(test_file).read())
+
+                df = df.append({
+                    "Project": project,
+                    "Bug Number": project_key,
+                    "Package Name": test_class,
+                    "Testcase Name": test,
+                    "Method Implementation": test_method_body
+                }, ignore_index=True)
+
+        df.to_csv(f"ground_truth_testcases/{project_key}.csv", index=False)
 
 if __name__ == "__main__":
     main()
