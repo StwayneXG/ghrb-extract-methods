@@ -134,6 +134,9 @@ def main():
                 elif '.' in test:
                     test = test.split('.')[-1]
                 test_method = get_test_methods(tree, test)
+                if test_method is None:
+                    # print(f"{project_key}: {test_class}.{test} not found")
+                    raise Exception(f"{project_key}: {test_class}.{test} not found")
                 test_method_body = _find_method_body(test_method.position, open(test_file).read())
                 # Create a new DataFrame for the new row
                 new_row_df = pd.DataFrame([{
