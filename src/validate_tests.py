@@ -73,6 +73,8 @@ def verify_in_buggy_version(buggy_commit, test_patch_dir, repo_path, test_prefix
         captured_stdout = test_process.stdout.decode()
         test_output = captured_stdout.split('[INFO]  T E S T S')[-1]
 
+        print(test_output)
+
         tests = []
         for line in test_output.split('\n'):
             if '[ERROR]' in line and 'Time elapsed' in line and line.endswith('!'):
@@ -147,9 +149,10 @@ def main():
         
         tests = {k: v for k, v in valid_tests.items() if k in success_tests}
         test_data[bug_id] = tests
+        break
 
-    with open('data/test_data.json', 'w') as f:
-        json.dump(test_data, f, indent=4)
+    # with open('data/test_data.json', 'w') as f:
+    #     json.dump(test_data, f, indent=4)
 
 
 if __name__ == "__main__":
